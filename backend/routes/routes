@@ -1,0 +1,67 @@
+const express = require('express')
+const router = express.Router()
+const AlbumSchema = require('../models/Album.js')
+
+router.get('/:id', (req, res) => {
+    AlbumSchema.findById(req.params.id)
+      .then(album => {
+        console.log("Successfully got one!");
+        console.log(album);
+        res.json(album);
+      })
+      .catch(err => {
+        console.error("Error fetching album:", err);
+        res.status(500).send("Internal server error");
+      });
+  });
+
+router.post('/add', (req, res) => {
+    const {name, artist, releaseyear} = req.body;
+    const newAlbum = new Album({
+        name,
+        artist,
+        releaseyear
+      });
+    
+      newAlbum.save()
+        .then(() => {
+          console.log("We did it!!! Are you proud of me?");
+          res.status(201).send("User added!");
+        })
+        .catch(err => {
+          console.error(err);
+          res.status(500).send("Failed to add album.");
+        });
+  })
+
+  router.put('/:id', (req, res) => {
+    const updates = req.body;
+  
+    AlbumSchema.findByIdAndUpdate(req.params.id, updates, { new: true, runValidators: true })
+      .then(updatedAlbum => {
+        if (!updatedAlbum) {
+          return res.status(404).send("Album not found");
+        }
+        console.log("Successfully updated!");
+        res.json(updatedAlbum);
+      })
+      .catch(err => {
+        console.error("Error updating album:", err);
+        res.status(500).send("Internal server error");
+      });
+  });
+
+  router.delete('/:id', (req, res) => {
+    AlbumSchema.findByIdAndDelete(req.params.id)
+      .then(deletedAlbum => {
+        if (!deleteAlbum) {
+          return res.status(404).send("Album not found");
+        }
+        console.log("Successfully deleted!");
+        res.json({ message: "Song deleted", deletedSong });
+      })
+      .catch(err => {
+        console.error("Error deleting album:", err);
+        res.status(500).send("Internal server error");
+      });
+  });
